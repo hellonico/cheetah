@@ -1,0 +1,18 @@
+{% extends "templates/base.html" %}
+{% block content %}
+    <div class="row-fluid">
+    <a style="font-family:Verdana ; width:150px" type="button" title="All" class="btn btn-warning" href="/monitors/all">
+    &nbsp;All&raquo;
+    </a>
+    </div>
+    <p>
+    <table>
+    {%for monitor in config.monitors %}
+    <tr><td>
+    <a style="font-family:Verdana ; width:150px" type="button" title="{{monitor.title}}" class="
+    glyphicon glyphicon-{{monitor.icon}} btn btn-{{monitor.color}} btn-" href="/monitors/web/{{monitor.handler}}">&nbsp;{{monitor.title}}&raquo;</a>
+    </td></tr>
+    {% endfor %}
+    </table>
+    </p>
+{% endblock %}

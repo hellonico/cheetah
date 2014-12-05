@@ -1,0 +1,21 @@
+{% extends "templates/base.html" %}
+{% block content %}
+    <!--<h1>{{config.title}}</h1>-->
+    <!-- <p>Time to start building your site!</p> -->
+    <p>
+    <table>
+    {%for command in config.commands%}
+    <tr><td>
+    <a style="font-family:Verdana ; width:150px" type="button" title="{{command.handler}}" class="
+    glyphicon glyphicon-{{command.icon}} btn btn-{{command.color}} btn-" href="/web/{{command.handler}}">&nbsp;{{command.title}}&raquo;</a>
+    </td></tr>
+    {% endfor %}
+    </table>
+    </p>
+<!-- 
+  <div class="row-fluid">
+    <div class="span8">
+    {{content|safe}}
+    </div>
+  </div> -->
+{% endblock %}

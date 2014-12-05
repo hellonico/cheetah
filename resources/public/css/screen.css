@@ -1,0 +1,12 @@
+html,
+body {
+	font-family: 'Avenir', Helvetica, Arial, sans-serif;
+	font-size: 11px;
+    height: 100%;
+    padding-top: 40px;
+}
+@media (min-width: 1200px) {
+    .container{
+        max-width: 600px;
+    }
+}

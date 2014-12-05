@@ -1,0 +1,27 @@
+{% extends "templates/base.html" %}
+{% block content %}
+  <div class="row-fluid">
+    <a style="font-family:Verdana ; width:150px" type="button" title="All" class="btn btn-warning" href="/monitors/all">
+    &nbsp;All&raquo;
+    </a>
+  </div>
+  <div class="row-fluid">
+  	<div class="span4">
+  	<table>
+    <tr>
+    <td>
+    <a style="font-family:Verdana ; width:150px" type="button" title="{{monitor.title}}" class="
+    glyphicon disabled glyphicon-{{monitor.icon}} btn btn-{{monitor.color}} btn-" href="/monitors/web/{{monitor.handler}}">&nbsp;{{monitor.title}}&raquo;</a>
+    </td>
+	<td>
+	{%ifequal monitor.result "1" %}
+	<img height="50" width="50" src="https://cdn0.iconfinder.com/data/icons/customicondesignoffice5/256/navigate-up.png"/>
+	{% else %}
+	<img height="50" width="50" src="https://cdn0.iconfinder.com/data/icons/customicondesignoffice5/256/navigate-down.png"/>
+	{% endifequal %}
+	</td>
+    </tr>
+    </table>
+  	</div>
+  </div>
+{% endblock %}

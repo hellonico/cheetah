@@ -1,0 +1,26 @@
+{
+	:title "Hello App"
+	:base ["bash" "-c"]
+	; :base ["ssh" "-tt" "shimo"]
+	; danger warning info success primary default
+	:commands [
+	 {:title "Give me time" 
+	  :color "info" 
+	  :handler "action1" 
+	  :sh "date"}
+	 {
+	 :title "Restart dock"
+	 :color "info"
+	 :handler "dock"
+	 :sh "killall -KILL Dock"
+	 }
+	 {:title "ls app info" 
+	  :color "info" 
+	  :handler "action2" 
+	  :sh "lsappinfo"}
+	  {:title "uptime" 
+	  :color "success" 
+	  :handler "action3" 
+	  :sh "uptime"}
+	 ]
+}

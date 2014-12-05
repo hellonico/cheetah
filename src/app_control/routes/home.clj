@@ -1,12 +1,9 @@
 (ns app-control.routes.home
   (:use  [clojure.java.shell :only [sh]])
+  (:use  [app-control.config])
   (:require [compojure.core :refer :all]
             [app-control.layout :as layout]
             [app-control.util :as util]))
-
-; reload this on each request
-(defn config []
-  (load-file "config.clj"))
 
 (defn home-page []
   (layout/render
@@ -14,9 +11,9 @@
       :config (config)
       :content (util/md->html "/md/docs.md")}))
 
-(defn result-page [result]
+(defn result-page [config result]
   (layout/render 
-    "about.html" {:content (str result)}))
+    "about.html" {:config config :content (str result)}))
 
 (defn output-to-html [result]
   (util/replace-several 
@@ -24,16 +21,12 @@
     #"\n" "<br/>" 
     #"\t"  "&nbsp;&nbsp;&nbsp;&nbsp;"))
 
-(defn get-sh[_config command]
-  (get 
-    (first (filter #(= (% :handler) command) (_config :commands))) :sh))
-
 (defroutes home-routes
   (GET "/" [] (home-page))
   (GET "/rest/:command" [command] 
-    (let [_config (config) params (get-sh _config command)]
-      (:out (apply sh (conj (_config :base) params)))))
-  (GET "/action/:command" [command] 
-    (let [_config (config) params (get-sh _config command)]
+      (execute (config) :commands command))
+  (GET "/web/:command" [command] 
+    (let [_config (config)]
       (result-page
-        (output-to-html  (:out (apply sh (conj (_config :base) params))))))))
+        _config 
+        (output-to-html (execute _config :commands command))))))

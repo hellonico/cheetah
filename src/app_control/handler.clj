@@ -1,7 +1,9 @@
 (ns app-control.handler
   (:use ring.server.standalone)
+  (:gen-class)
   (:require [compojure.core :refer [defroutes]]
             [app-control.routes.home :refer [home-routes]]
+            [app-control.routes.monitors :refer [monitors-routes]]
             [app-control.middleware :refer [load-middleware]]
             [app-control.session-manager :as session-manager]
             [noir.response :refer [redirect]]
@@ -50,7 +52,8 @@
 
 (def app (app-handler
            ;; add your application routes here
-           [home-routes app-routes]
+           [monitors-routes home-routes app-routes]
+           ;[monitors-routes app-routes]
            ;; add custom middleware here
            :middleware (load-middleware)
            ;; timeout sessions after 30 minutes
