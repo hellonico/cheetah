@@ -3,24 +3,66 @@
 	:base ["bash" "-c"]
 	; :base ["ssh" "-tt" "shimo"]
 	; danger warning info success primary default
+	:notification {
+		; :mail {
+		; 	:stmp { :host "smtp.gmail.com"
+		;    		:user "yes@gmail.com"
+  		;          	:pass "yourpass!"
+  		;          	:ssl :yes!!!11}
+  		;   	    :from "hellonico@gmail.com"
+	 	;        :to ["hellonico@gmail.com"]	
+		; }
+		:growl {
+
+		}
+	}
+	:cron "/60 * * * * * *"
+	:monitors [
+	  {:title "Redis"
+	  :color "info"
+	  :handler "redis"
+	  :threshold "= 1 %"
+	  :sh "lsof -i -P | grep redis | wc -l"
+	  }
+	 {:title "Repl"
+	  :color "info"
+	  :handler "rrepl"
+	  :threshold "= 1 %"
+	  :sh "lsof -i -P | grep 50001 | wc -l | awk '{print $1}'"
+	  }
+	]
 	:commands [
 	 {:title "Give me time" 
 	  :color "info" 
 	  :handler "action1" 
-	  :sh "date"}
+	  :sh "date"
+	 }
+	 {:title "Repl"
+	 :color "info"
+	 :handler "repl"
+	 :sh "at now -f 'lein trampoline repl :headless :port 50001 > repl.log 2>&1'"
+	 }
 	 {
 	 :title "Restart dock"
 	 :color "info"
 	 :handler "dock"
 	 :sh "killall -KILL Dock"
 	 }
+	 {
+	 :title "Redis"
+	 :color "info"
+	 :handler "redis"
+	 :sh "at now -f 'redis-server /usr/local/etc/redis.conf'"
+	 }
 	 {:title "ls app info" 
 	  :color "info" 
 	  :handler "action2" 
-	  :sh "lsappinfo"}
-	  {:title "uptime" 
+	  :sh "lsappinfo"
+	 }
+	 {:title "uptime" 
 	  :color "success" 
 	  :handler "action3" 
-	  :sh "uptime"}
+	  :sh "uptime"
+	 }
 	 ]
 }

@@ -21,28 +21,6 @@
     "_monitor_all.html" 
     {:config config :monitors results}))
 
-(defn execute-with-threshold[_config command]
-  (let [monitor (get-monitor _config command)
-        threshold (monitor :threshold)
-        result (execute _config :monitors command)
-        check (str "(#(" threshold ") " result ") ")
-        ev-check (load-string check)
-        ]
-    (println check)
-    (println ":" ev-check)
-    (if (= true ev-check) ;#((> (Float. result) threshold)
-      "1"
-      "0")))
-
-(defn execute-all[_config]
-  (let[monitors (_config :monitors)]
-    (pmap 
-      #(conj 
-        % 
-        {:result 
-          (execute-with-threshold _config (% :handler))}) 
-      monitors)))
-
 (defroutes monitors-routes
   (context "/monitors" []
       (GET "/all" [] 
@@ -56,5 +34,7 @@
           )))
       (GET "/rest/all" []
         (execute-all (config)))
+      (GET "/rest/:command" [command]
+        {:result (execute-with-threshold (config) command)})
       (GET "/" [] (monitors-page))
       ))

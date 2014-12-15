@@ -23,6 +23,8 @@
 
 (defroutes home-routes
   (GET "/" [] (home-page))
+  (GET "/rest" []
+      (pmap #(hash-map (% :handler) (% :sh)) ((config) :commands) ))
   (GET "/rest/:command" [command] 
       (execute (config) :commands command))
   (GET "/web/:command" [command] 

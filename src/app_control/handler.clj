@@ -1,7 +1,11 @@
 (ns app-control.handler
+  (:use app-control.routes.monitors)
   (:use ring.server.standalone)
+  (:use jakemcc.clojure-gntp.gntp)
+  (:require [app-control.config :as config])
   (:gen-class)
   (:require [compojure.core :refer [defroutes]]
+            [postal.core :as postal]
             [app-control.routes.home :refer [home-routes]]
             [app-control.routes.monitors :refer [monitors-routes]]
             [app-control.middleware :refer [load-middleware]]
@@ -18,6 +22,38 @@
 (defroutes app-routes
   (route/resources "/")
   (route/not-found "Not Found"))
+
+(defn notify[_config res]
+  (if (-> _config :notification :growl)
+    (future (message "SHIMO" (str (res :title) " is probably ↓"))))
+  (if (-> _config :notification :mail)
+    (future
+      (postal/send-message 
+              (-> _config :notification :mail :stmp)
+              {:from (-> _config :notification :mail :from)
+               :to (-> _config :notification :mail :to)
+               :subject (str "Hi!" (res :title) " is probably ↓")
+               :body "☆"
+               :X-Tra "Something else"}))))
+
+(defn monitor-handler [t opts]
+  (let [
+    _config (config/config)
+    results (config/execute-all _config)]
+    (doseq [res results]
+        (if (= (res :result) "1")
+          (timbre/debug (res :title) " ↑")
+          (do 
+            (notify _config res)
+            (timbre/debug (res :title) " ↓"))))))
+
+(def monitoring-job 
+  (cronj/cronj :entries [
+    {:id "monitoring"
+     :handler monitor-handler
+     :schedule ((config/config) :cron)
+     :opts {}}
+    ]))
 
 (defn init
   "init will be called once when
@@ -40,6 +76,12 @@
   (if (env :dev) (parser/cache-off!))
   ;;start the expired session cleanup job
   (cronj/start! session-manager/cleanup-job)
+
+  (let [_config (config/config) _cron (-> _config :cron)]
+   (if _cron
+    (do 
+      (timbre/info "Starting background monitoring:" _cron)
+      (cronj/start! monitoring-job))))
   (timbre/info "app-control started successfully"))
 
 (defn destroy
@@ -48,6 +90,8 @@
   []
   (timbre/info "app-control is shutting down...")
   (cronj/shutdown! session-manager/cleanup-job)
+
+  (cronj/shutdown! monitoring-job)
   (timbre/info "shutdown complete!"))
 
 (def app (app-handler
@@ -66,5 +110,10 @@
            ;; :json :json-kw :yaml :yaml-kw :edn :yaml-in-html
            :formats [:json-kw :edn]))
 
-(defn -main[]
+(defn -main[& args]
+  (if args
+    (do 
+    (timbre/info "Using config file " (first args))
+    (dosync 
+      (ref-set config/config-ref (first args)))))
   (serve app))
