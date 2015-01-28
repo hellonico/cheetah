@@ -1,0 +1,1 @@
+nohup gaffer start -c worker=5 &
